@@ -4,5 +4,6 @@ __pycache__/
 env/
 
 model/
+*.pkl
 
 .streamlit/secrets.toml
