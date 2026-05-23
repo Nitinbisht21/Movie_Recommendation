@@ -1,0 +1,261 @@
+:root {
+    --page: #101114;
+    --panel: #17191e;
+    --line: #343944;
+    --text: #f5f1e8;
+    --muted: #a9b0bd;
+    --soft: #737b89;
+    --accent: #f3bf3c;
+}
+
+html, body, .stApp {
+    background: var(--page);
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+header, footer, #MainMenu {
+    visibility: hidden;
+}
+
+.block-container {
+    padding-top: 1.4rem;
+    padding-bottom: 2rem;
+    max-width: 1280px;
+}
+
+[data-testid="stSidebar"] {
+    background: #13151a;
+    border-right: 1px solid var(--line);
+}
+
+.topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.7fr);
+    gap: 1rem;
+    align-items: stretch;
+    margin-bottom: 1.25rem;
+}
+
+.masthead {
+    min-height: 210px;
+    padding: 1.8rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background:
+        linear-gradient(110deg, rgba(16, 17, 20, 0.88), rgba(16, 17, 20, 0.58)),
+        repeating-linear-gradient(90deg, rgba(243, 191, 60, 0.18) 0 2px, transparent 2px 34px),
+        linear-gradient(135deg, #24201a, #20242b 48%, #1d1717);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.masthead h1 {
+    margin: 0;
+    color: var(--text);
+    font-size: clamp(2.2rem, 5vw, 4.2rem);
+    line-height: 0.95;
+    font-weight: 850;
+}
+
+.masthead p {
+    margin: 0.75rem 0 0;
+    max-width: 760px;
+    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.55;
+}
+
+.stat-panel {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.stat {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    background: #1c2027;
+    padding: 0.9rem;
+    min-height: 88px;
+}
+
+.stat span {
+    display: block;
+    color: var(--soft);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.stat strong {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--text);
+    font-size: clamp(1.15rem, 2.5vw, 1.75rem);
+    line-height: 1.1;
+}
+
+.section-label {
+    margin: 1.2rem 0 0.65rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 800;
+}
+
+.movie-panel,
+.movie-card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    overflow: hidden;
+}
+
+.movie-panel {
+    padding: 1rem;
+    margin: 0.85rem 0 1.1rem;
+}
+
+.movie-panel h2 {
+    margin: 0 0 0.45rem;
+    color: var(--text);
+    font-size: clamp(1.55rem, 3vw, 2.25rem);
+    line-height: 1.05;
+}
+
+.movie-meta,
+.cast-line,
+.overview,
+.empty-state {
+    color: var(--muted);
+}
+
+.movie-overview {
+    color: #d7dbe2;
+    line-height: 1.55;
+    margin-top: 0.8rem;
+}
+
+.tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0.35rem 0;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    border: 1px solid rgba(243, 191, 60, 0.36);
+    border-radius: 999px;
+    color: #f9d97d;
+    background: rgba(243, 191, 60, 0.08);
+    padding: 0.12rem 0.55rem;
+    font-size: 0.77rem;
+    font-weight: 700;
+}
+
+.cast-line {
+    font-size: 0.88rem;
+    margin-top: 0.45rem;
+}
+
+.cast-line b {
+    color: var(--text);
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0.85rem;
+}
+
+.movie-card {
+    min-height: 340px;
+}
+
+.poster {
+    min-height: 145px;
+    background:
+        linear-gradient(145deg, rgba(243, 191, 60, 0.16), rgba(200, 78, 71, 0.16)),
+        linear-gradient(135deg, #20242b, #14161b);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+}
+
+.rank-number {
+    color: var(--accent);
+    font-size: 2.4rem;
+    line-height: 1;
+}
+
+.poster-label {
+    color: var(--muted);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+.card-body {
+    padding: 0.85rem;
+}
+
+.match {
+    display: inline-flex;
+    border-radius: 999px;
+    background: rgba(99, 180, 122, 0.13);
+    color: #98d7a8;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    margin-bottom: 0.55rem;
+}
+
+.movie-card h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 1.02rem;
+    line-height: 1.2;
+}
+
+.overview {
+    margin-top: 0.55rem;
+    font-size: 0.84rem;
+    line-height: 1.45;
+}
+
+.empty-state {
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 2rem;
+    text-align: center;
+}
+
+.stButton > button {
+    border-radius: 8px;
+    border: 1px solid rgba(243, 191, 60, 0.55);
+    background: #f3bf3c;
+    color: #151515;
+    font-weight: 850;
+    min-height: 44px;
+}
+
+@media (max-width: 900px) {
+    .topbar {
+        grid-template-columns: 1fr;
+    }
+}
