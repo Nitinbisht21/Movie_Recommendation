@@ -1,10 +1,12 @@
 import html
+import os
 import pickle
 import re
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import requests
 import streamlit as st
 
 from save_model import build_model
@@ -14,8 +16,11 @@ APP_DIR = Path(__file__).parent
 MODEL_DIR = APP_DIR / "model"
 MOVIES_CSV = APP_DIR / "tmdb_5000_movies.csv"
 STYLE_CSS = APP_DIR / "style.css"
+ENV_FILE = APP_DIR / ".env"
 MODEL_DATA = MODEL_DIR / "new_df.pkl"
 MODEL_SIMILARITY = MODEL_DIR / "similarity.pkl"
+TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
+TMDB_MOVIE_API_URL = "https://api.themoviedb.org/3/movie/{movie_id}"
 
 
 st.set_page_config(
@@ -57,6 +62,112 @@ def tags_html(values, limit=4):
         return ""
     tags = [f"<span class='tag'>{escape(pretty_token(item))}</span>" for item in list(values)[:limit]]
     return "<div class='tag-row'>" + "".join(tags) + "</div>" if tags else ""
+
+
+def get_tmdb_secret(name):
+    try:
+        return st.secrets.get(name, "")
+    except Exception:
+        return ""
+
+
+def get_dotenv_secret(name):
+    if not ENV_FILE.exists():
+        return ""
+
+    for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        if key.strip() == name:
+            return value.strip().strip('"').strip("'")
+    return ""
+
+
+def get_tmdb_auth(manual_secret=""):
+    manual_secret = manual_secret.strip()
+    if manual_secret:
+        if manual_secret.startswith("ey"):
+            return {"type": "bearer", "value": manual_secret}
+        return {"type": "api_key", "value": manual_secret}
+
+    access_token = (
+        get_tmdb_secret("TMDB_ACCESS_TOKEN")
+        or os.environ.get("TMDB_ACCESS_TOKEN", "")
+        or get_dotenv_secret("TMDB_ACCESS_TOKEN")
+    )
+    api_key = (
+        get_tmdb_secret("TMDB_API_KEY")
+        or os.environ.get("TMDB_API_KEY", "")
+        or get_dotenv_secret("TMDB_API_KEY")
+    )
+    if access_token:
+        return {"type": "bearer", "value": access_token}
+    if api_key:
+        return {"type": "api_key", "value": api_key}
+    return {"type": "", "value": ""}
+
+
+@st.cache_data(show_spinner=False, ttl=86400)
+def fetch_poster_url(movie_id, auth_type, auth_value):
+    if not auth_value or pd.isna(movie_id):
+        return ""
+
+    params = {}
+    headers = {"accept": "application/json"}
+    if auth_type == "bearer":
+        headers["Authorization"] = f"Bearer {auth_value}"
+    else:
+        params["api_key"] = auth_value
+
+    try:
+        response = requests.get(
+            TMDB_MOVIE_API_URL.format(movie_id=int(movie_id)),
+            params=params,
+            headers=headers,
+            timeout=8,
+        )
+        response.raise_for_status()
+        poster_path = response.json().get("poster_path")
+    except requests.RequestException:
+        return ""
+
+    if not poster_path:
+        return ""
+    return f"{TMDB_IMAGE_BASE_URL}{poster_path}"
+
+
+@st.cache_data(show_spinner=False, ttl=300)
+def check_tmdb_connection(auth_type, auth_value):
+    if not auth_value:
+        return "missing", "No TMDB key or token found."
+
+    poster_url = fetch_poster_url(19995, auth_type, auth_value)
+    if poster_url:
+        return "ok", "TMDB poster test passed."
+    return "failed", "TMDB poster test failed. Check the key/token value."
+
+
+def poster_html(movie_id, title, rank=None, tmdb_auth=None, placeholder_label="Movie Poster"):
+    tmdb_auth = tmdb_auth or {"type": "", "value": ""}
+    poster_url = fetch_poster_url(movie_id, tmdb_auth["type"], tmdb_auth["value"])
+    if poster_url:
+        rank_badge = f"<div class='poster-rank'>#{rank}</div>" if rank else ""
+        return (
+            "<div class='poster poster-with-image'>"
+            f"{rank_badge}"
+            f"<img src='{escape(poster_url)}' alt='{escape(title)} poster' class='poster-image'>"
+            "</div>"
+        )
+
+    rank_html = f"<div class='rank-number'>#{rank}</div>" if rank else "<div class='rank-number'>Poster</div>"
+    return (
+        "<div class='poster'>"
+        f"{rank_html}"
+        f"<div class='poster-label'>{escape(placeholder_label)}</div>"
+        "</div>"
+    )
 
 
 def ensure_model_files():
@@ -166,7 +277,7 @@ def recommend(movie_title, movies, similarity, limit):
     return recommendations
 
 
-def render_movie_panel(row, details):
+def render_movie_panel(row, details, tmdb_auth):
     release_year = details.get("release_year", "N/A")
     rating = format_number(details.get("vote_average"), 1)
     votes = format_number(details.get("vote_count"))
@@ -185,23 +296,33 @@ def render_movie_panel(row, details):
         else ""
     )
 
+    selected_poster = poster_html(
+        row.get("movie_id"),
+        row["title"],
+        tmdb_auth=tmdb_auth,
+        placeholder_label="Movie Poster",
+    )
+
     st.markdown(
-        f"""
-        <div class='movie-panel'>
-            <h2>{escape(row["title"])}</h2>
-            <div class='movie-meta'>{escape(" | ".join(meta_bits))}</div>
-            {tags_html(row.get("genres", []), limit=6)}
-            {tagline_html}
-            <div class='cast-line'><b>Cast:</b> {escape(pretty_list(row.get("cast", []), limit=3))}</div>
-            <div class='cast-line'><b>Director:</b> {escape(pretty_list(row.get("crew", []), limit=1))}</div>
-            <div class='movie-overview'>{escape(row.get("overview", "No overview available."))}</div>
-        </div>
-        """,
+        "<div class='movie-panel'>"
+        "<div class='movie-panel-content'>"
+        f"<div class='selected-poster'>{selected_poster}</div>"
+        "<div>"
+        f"<h2>{escape(row['title'])}</h2>"
+        f"<div class='movie-meta'>{escape(' | '.join(meta_bits))}</div>"
+        f"{tags_html(row.get('genres', []), limit=6)}"
+        f"{tagline_html}"
+        f"<div class='cast-line'><b>Cast:</b> {escape(pretty_list(row.get('cast', []), limit=3))}</div>"
+        f"<div class='cast-line'><b>Director:</b> {escape(pretty_list(row.get('crew', []), limit=1))}</div>"
+        f"<div class='movie-overview'>{escape(row.get('overview', 'No overview available.'))}</div>"
+        "</div>"
+        "</div>"
+        "</div>",
         unsafe_allow_html=True,
     )
 
 
-def render_recommendation_cards(recommendations, metadata):
+def render_recommendation_cards(recommendations, metadata, tmdb_auth):
     cards = []
     for rank, item in enumerate(recommendations, start=1):
         details = movie_details(item.get("movie_id"), metadata)
@@ -213,10 +334,7 @@ def render_recommendation_cards(recommendations, metadata):
 
         cards.append(
             "<article class='movie-card'>"
-            "<div class='poster'>"
-            f"<div class='rank-number'>#{rank}</div>"
-            "<div class='poster-label'>Recommended Movie</div>"
-            "</div>"
+            f"{poster_html(item.get('movie_id'), item['title'], rank=rank, tmdb_auth=tmdb_auth, placeholder_label='Recommended Movie')}"
             "<div class='card-body'>"
             f"<div class='match'>{escape(item['score'])}% match</div>"
             f"<h3>{escape(item['title'])}{escape(year_text)}</h3>"
@@ -238,6 +356,26 @@ with st.sidebar:
     result_count = 5
     st.metric("Recommendations shown", result_count)
     st.caption("The app shows the top 5 matches. The model compares genre, keywords, cast, director, and overview tags.")
+
+    tmdb_secret_input = st.text_input(
+        "TMDB key or token",
+        type="password",
+        help="Paste your TMDB API key or read access token to show posters.",
+    )
+    tmdb_auth = get_tmdb_auth(tmdb_secret_input)
+    poster_status, poster_message = check_tmdb_connection(
+        tmdb_auth["type"],
+        tmdb_auth["value"],
+    )
+    if poster_status == "ok":
+        st.success(poster_message)
+        test_poster_url = fetch_poster_url(19995, tmdb_auth["type"], tmdb_auth["value"])
+        if test_poster_url:
+            st.image(test_poster_url, caption="Poster preview: Avatar", use_container_width=True)
+    elif poster_status == "failed":
+        st.error(poster_message)
+    else:
+        st.warning("TMDB posters need TMDB_API_KEY or TMDB_ACCESS_TOKEN in Streamlit secrets.")
 
     st.divider()
     st.markdown("**Project files**")
@@ -294,13 +432,13 @@ with st.form("recommendation_form", clear_on_submit=False):
 
 selected_row = movies[movies["title"] == selected_movie].iloc[0]
 selected_details = movie_details(selected_row.get("movie_id"), metadata)
-render_movie_panel(selected_row, selected_details)
+render_movie_panel(selected_row, selected_details, tmdb_auth)
 
 if submitted:
     recommendations = recommend(selected_movie, movies, similarity, result_count)
     st.markdown("<div class='section-label'>Recommended For You</div>", unsafe_allow_html=True)
     if recommendations:
-        render_recommendation_cards(recommendations, metadata)
+        render_recommendation_cards(recommendations, metadata, tmdb_auth)
     else:
         st.markdown(
             "<div class='empty-state'>No recommendations found for this movie.</div>",

@@ -1,32 +1,53 @@
-# CineMatch Movie Recommender
+# Movie Recommendation App
 
-A Streamlit movie recommendation app built from the TMDB 5000 movies and credits datasets.
+Streamlit app that recommends 5 similar movies using the TMDB 5000 movies dataset.
+
+## Files
+
+- `app.py` - Streamlit frontend
+- `save_model.py` - builds the recommendation model
+- `style.css` - app styling
+- `tmdb_5000_movies.csv` and `tmdb_5000_credits.csv` - dataset files
+- `requirements.txt` - Python packages
 
 ## Run Locally
 
 ```bash
 pip install -r requirements.txt
 python save_model.py
-streamlit run app.py
+python -m streamlit run app.py
 ```
 
-The app can also build the model automatically on first startup if the `model/` folder is missing.
+## TMDB Posters
+
+To show movie posters, add your TMDB API key:
+
+```bash
+# .env
+TMDB_API_KEY=your_api_key_here
+```
+
+Or use Streamlit secrets:
+
+```toml
+# .streamlit/secrets.toml
+TMDB_API_KEY = "your_api_key_here"
+```
+
+You can also use a TMDB read access token:
+
+```toml
+TMDB_ACCESS_TOKEN = "your_read_access_token_here"
+```
+
+Do not commit your real API key.
 
 ## Deploy
 
-Deploy this project as a Streamlit app with:
+For Streamlit Community Cloud:
 
-- Repository: your GitHub repository
+- Repository: this GitHub repo
 - Branch: `main`
-- Main file path: `app.py`
+- Main file: `app.py`
 
-The two CSV files must stay in the repository because the deployment rebuilds the ignored model files from them.
-
-## Files
-
-- `app.py` - Streamlit frontend and recommendation UI
-- `save_model.py` - builds `model/new_df.pkl` and `model/similarity.pkl`
-- `MoviesRecommendation.ipynb` - original notebook work
-- `tmdb_5000_movies.csv` and `tmdb_5000_credits.csv` - source data
-- `requirements.txt` - Python dependencies
-
+Do not commit the `model/` folder. The app rebuilds the model from the CSV files when needed.

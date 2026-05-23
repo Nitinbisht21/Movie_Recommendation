@@ -123,6 +123,13 @@ header, footer, #MainMenu {
     margin: 0.85rem 0 1.1rem;
 }
 
+.movie-panel-content {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
 .movie-panel h2 {
     margin: 0 0 0.45rem;
     color: var(--text);
@@ -182,6 +189,12 @@ header, footer, #MainMenu {
     min-height: 340px;
 }
 
+.selected-poster .poster {
+    min-height: 225px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
 .poster {
     min-height: 145px;
     background:
@@ -194,6 +207,35 @@ header, footer, #MainMenu {
     align-items: center;
     justify-content: center;
     font-weight: 900;
+    position: relative;
+}
+
+.poster-with-image {
+    min-height: 0;
+    aspect-ratio: 2 / 3;
+    background: #101114;
+    align-items: stretch;
+}
+
+.poster-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.poster-rank {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    z-index: 1;
+    border-radius: 999px;
+    background: rgba(16, 17, 20, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: var(--accent);
+    font-size: 0.85rem;
+    font-weight: 900;
+    padding: 0.2rem 0.55rem;
 }
 
 .rank-number {
@@ -257,5 +299,13 @@ header, footer, #MainMenu {
 @media (max-width: 900px) {
     .topbar {
         grid-template-columns: 1fr;
+    }
+
+    .movie-panel-content {
+        grid-template-columns: 1fr;
+    }
+
+    .selected-poster {
+        max-width: 190px;
     }
 }
