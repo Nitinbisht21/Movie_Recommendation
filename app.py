@@ -85,13 +85,7 @@ def get_dotenv_secret(name):
     return ""
 
 
-def get_tmdb_auth(manual_secret=""):
-    manual_secret = manual_secret.strip()
-    if manual_secret:
-        if manual_secret.startswith("ey"):
-            return {"type": "bearer", "value": manual_secret}
-        return {"type": "api_key", "value": manual_secret}
-
+def get_tmdb_auth():
     access_token = (
         get_tmdb_secret("TMDB_ACCESS_TOKEN")
         or os.environ.get("TMDB_ACCESS_TOKEN", "")
@@ -357,12 +351,7 @@ with st.sidebar:
     st.metric("Recommendations shown", result_count)
     st.caption("The app shows the top 5 matches. The model compares genre, keywords, cast, director, and overview tags.")
 
-    tmdb_secret_input = st.text_input(
-        "TMDB key or token",
-        type="password",
-        help="Paste your TMDB API key or read access token to show posters.",
-    )
-    tmdb_auth = get_tmdb_auth(tmdb_secret_input)
+    tmdb_auth = get_tmdb_auth()
     poster_status, poster_message = check_tmdb_connection(
         tmdb_auth["type"],
         tmdb_auth["value"],

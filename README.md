@@ -42,6 +42,8 @@ TMDB_ACCESS_TOKEN = "your_read_access_token_here"
 
 Do not commit your real API key.
 
+The API key is read only on the server. It is never displayed in the app or committed to Git.
+
 ## Deploy
 
 For Streamlit Community Cloud:
