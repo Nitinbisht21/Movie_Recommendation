@@ -1,13 +1,3 @@
-"""
-Build the recommendation model files from the TMDB CSV data.
-
-Run locally:
-    python save_model.py
-
-The Streamlit app also calls build_model() automatically during deployment
-when the model files are not present.
-"""
-
 import ast
 import pickle
 from pathlib import Path
