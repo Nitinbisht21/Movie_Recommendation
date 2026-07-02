@@ -79,7 +79,7 @@ The model is trained once via `save_model.py` and cached as `.pkl` files, so the
 git clone https://github.com/Nitinbisht21/Movie_Recommendation.git
 cd Movie_Recommendation
 pip install -r requirements.txt
-python save_model.py        # builds the model from the CSV dataset
+python save_model.py        
 streamlit run app.py
 ```
 
@@ -114,16 +114,6 @@ Get a free key at [themoviedb.org](https://www.themoviedb.org/settings/api). The
 └── requirements.txt
 ```
 
----
-
-## 🧭 Roadmap
-
-- [ ] Hybrid filtering — blend content-based scores with collaborative signals
-- [ ] "More like this" chaining — recommend based on multiple liked movies at once
-- [ ] Genre/year filters on top of similarity results
-- [ ] Swap Bag-of-Words for sentence embeddings for richer overview matching
-
----
 
 ## 🙋 About Me
 
