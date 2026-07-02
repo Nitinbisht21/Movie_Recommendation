@@ -107,7 +107,7 @@ Get a free key at [themoviedb.org](https://www.themoviedb.org/settings/api). The
 ```
 ├── app.py                    # Streamlit app (UI + TMDB integration)
 ├── save_model.py             # Builds the recommendation model
-├── MoviesRecommendation.ipynb # Original notebook / exploration
+├── MoviesRecommendation.ipynb # Original notebook
 ├── style.css                 # Custom app styling
 ├── tmdb_5000_movies.csv      # Dataset — movie metadata
 ├── tmdb_5000_credits.csv     # Dataset — cast & crew
