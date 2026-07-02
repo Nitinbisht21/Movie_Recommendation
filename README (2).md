@@ -69,7 +69,7 @@ The model is trained once via `save_model.py` and cached as `.pkl` files, so the
 | Data Handling | Pandas, NumPy |
 | ML | scikit-learn (`CountVectorizer`, cosine similarity), NLTK (stemming) |
 | Frontend / Deployment | Streamlit, Streamlit Community Cloud |
-| External API | TMDB API (posters + live metadata) |
+| External API | TMDB API (posters ) |
 
 ---
 
